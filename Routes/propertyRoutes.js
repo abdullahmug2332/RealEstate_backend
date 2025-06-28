@@ -13,7 +13,7 @@ const router = express.Router();
 router.post("/properties", upload.array("media", 10), createProperty);
 router.get("/properties", getAllProperties);
 router.get("/properties/:id", getPropertyById);
-router.put("/properties/:id", updateProperty);
+router.put("/properties/:id", upload.array("media", 10), updateProperty);
 router.delete("/properties/:id", deleteProperty);
 
 export default router;
