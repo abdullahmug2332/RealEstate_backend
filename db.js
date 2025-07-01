@@ -12,6 +12,7 @@ const db = mysql.createConnection({
 
 db.connect((err) => {
   if (err) {
+    console.error("DB Update Error:", err);
     console.error('Database connection failed: ' + err.stack);
     return;
   }
