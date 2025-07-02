@@ -1,9 +1,8 @@
 import db from "../db.js";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET;
+
+const JWT_SECRET = "abdullahrealestate";
 
 export const login = (req, res) => {
   const { email, password } = req.body;
@@ -48,4 +47,74 @@ export const checktoken = (req, res) => {
   } catch (err) {
     res.status(403).json({ message: "Invalid token" });
   }
+};
+
+// ✅ Get All Users Controller
+export const getAllUsers = (req, res) => {
+  const sql = "SELECT * FROM users";
+  
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error("Error fetching users:", err);
+      return res.status(500).json({ message: "Error retrieving users" });
+    }
+
+    res.status(200).json(results);
+  });
+};
+
+// ✅ Create User Controller
+export const createUser = (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Check if email already exists
+  const checkEmailSql = "SELECT * FROM users WHERE email = ?";
+  db.query(checkEmailSql, [email], (err, results) => {
+    if (err) {
+      console.error("Error checking email:", err);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+
+    if (results.length > 0) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
+
+    // If email doesn't exist, insert the new user
+    const insertSql = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
+    db.query(insertSql, [name, email, password], (err, result) => {
+      if (err) {
+        console.error("Error inserting user:", err);
+        return res.status(500).json({ message: "Error creating user" });
+      }
+      res.status(201).json({ message: "User created successfully" });
+    });
+  });
+};
+
+
+// ✅ Delete User Controller (protect user with ID = 1)
+export const deleteUser = (req, res) => {
+  const { id } = req.params;
+
+  if (id == 1) {
+    return res.status(403).json({ message: "You can never delete this user. He is the owner of Abdullah Real Estate." });
+  }
+
+  const sql = "DELETE FROM users WHERE id = ?";
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error("Error deleting user:", err);
+      return res.status(500).json({ message: "Error deleting user" });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User deleted successfully" });
+  });
 };

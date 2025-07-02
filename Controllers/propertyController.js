@@ -125,6 +125,14 @@ export const updateProperty = (req, res) => {
     soldAt,
     createdAt,
     oldMedia,
+    // New rental fields
+    rentedOut,
+    rentedByUs,
+    tenantName,
+    landlordName,
+    rentAmount,
+    rentedAt,
+    soldAmount,
   } = req.body;
 
   let oldMediaParsed = [];
@@ -148,12 +156,17 @@ export const updateProperty = (req, res) => {
     UPDATE properties SET
       price = ?, location = ?, type = ?, measurement = ?, unit = ?, rooms = ?, bath = ?, front = ?, back = ?,
       description = ?, media = ?, soldout = ?, soldByUs = ?, buyerName = ?, sellerName = ?, commission = ?,
-      soldAt = ?, createdAt = ?
+      soldAt = ?, createdAt = ?, rentedOut = ?, rentedByUs = ?, tenantName = ?, landlordName = ?, rentAmount = ?,
+      rentedAt = ?, soldAmount = ?
     WHERE id = ?`;
 
   const soldoutBool = soldout === "true" || soldout === "1" || soldout === 1;
   const soldByUsBool =
     soldByUs === "true" || soldByUs === "1" || soldByUs === 1;
+  const rentedOutBool =
+    rentedOut === "true" || rentedOut === "1" || rentedOut === 1;
+  const rentedByUsBool =
+    rentedByUs === "true" || rentedByUs === "1" || rentedByUs === 1;
 
   const values = [
     price,
@@ -174,16 +187,22 @@ export const updateProperty = (req, res) => {
     commission || null,
     soldAt || null,
     createdAt || null,
+    rentedOutBool,
+    rentedByUsBool,
+    tenantName || null,
+    landlordName || null,
+    rentAmount || null,
+    rentedAt || null,
+    soldAmount || null,
     id,
   ];
-
-  console.log(typeof soldout, soldout);
 
   db.query(sql, values, (err) => {
     if (err) return res.status(500).json(err);
     res.json({ message: "Property updated successfully" });
   });
 };
+
 
 // Delete Property
 export const deleteProperty = (req, res) => {
@@ -201,8 +220,7 @@ export const deleteProperty = (req, res) => {
 
 // Mark Property as Sold
 export const markPropertyAsSold = (req, res) => {
-  const { id, soldByUs, sellerName, buyerName, commission, soldAt } = req.body;
-  console.log(soldByUs);
+  const { id, soldByUs, sellerName, buyerName, commission, soldAt,soldAmount } = req.body;
   if (!id) {
     return res.status(400).json({ error: "Property ID is required" });
   }
@@ -212,7 +230,7 @@ export const markPropertyAsSold = (req, res) => {
 
   const query = `
     UPDATE properties
-    SET soldout = ?, soldByUs = ?, sellerName = ?, buyerName = ?, commission = ?, soldAt = ?
+    SET soldout = ?, soldByUs = ?, sellerName = ?, buyerName = ?, commission = ?, soldAt = ?,soldAmount=?
     WHERE id = ?
   `;
 
@@ -223,6 +241,7 @@ export const markPropertyAsSold = (req, res) => {
     buyerName || null,
     commission || null,
     soldAt || null,
+    soldAmount || null ,
     id,
   ];
 
@@ -237,3 +256,194 @@ export const markPropertyAsSold = (req, res) => {
     res.status(200).json({ message: "Property marked as sold successfully" });
   });
 };
+
+// Mark Property as Rented
+export const markPropertyAsRented = (req, res) => {
+  const {
+    id,
+    rentedByUs,
+    landlordName,
+    tenantName,
+    commission,
+    rentedAt,
+    rentAmount,
+  } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ error: "Property ID is required" });
+  }
+
+  const rentedOut = true;
+  const rentedByUsBool = rentedByUs === true ? 1 : 0;
+
+  const query = `
+    UPDATE properties
+    SET rentedOut = ?, rentedByUs = ?, landlordName = ?, tenantName = ?, commission = ?, rentedAt = ?, rentAmount = ?
+    WHERE id = ?
+  `;
+
+  const values = [
+    rentedOut,
+    rentedByUsBool,
+    landlordName || null,
+    tenantName || null,
+    commission || null,
+    rentedAt || null,
+    rentAmount || null,
+    id,
+  ];
+
+  db.query(query, values, (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: "Database error", details: err });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Property not found" });
+    }
+
+    res.status(200).json({ message: "Property marked as rented successfully" });
+  });
+};
+
+// Get Property Stats
+export const getPropertyStats = (req, res) => {
+  const soldCountQuery = `
+    SELECT COUNT(*) AS soldCount FROM properties 
+    WHERE type = 'sale' AND soldout = true AND soldByUs = true
+  `;
+
+  const rentedCountQuery = `
+    SELECT COUNT(*) AS rentedCount FROM properties 
+    WHERE type = 'rent' AND rentedOut = true AND rentedByUs = true
+  `;
+
+  const soldDealsQuery = `
+    SELECT COUNT(*) AS totalSoldDeals FROM properties 
+    WHERE soldOut = true AND soldByUs = true
+  `;
+
+  const rentedDealsQuery = `
+    SELECT COUNT(*) AS totalRentedDeals FROM properties 
+    WHERE rentedOut = true AND rentedByUs = true
+  `;
+
+  const commissionQuery = `
+    SELECT SUM(commission) AS totalCommission FROM properties 
+    WHERE soldOut = true AND soldByUs = true OR rentedOut = true AND rentedByUs = true
+  `;
+
+  // Step 1
+  db.query(soldCountQuery, (err, soldCountResult) => {
+    if (err) return res.status(500).json({ error: "Database error (soldCount)" });
+
+    // Step 2
+    db.query(rentedCountQuery, (err, rentedCountResult) => {
+      if (err) return res.status(500).json({ error: "Database error (rentedCount)" });
+
+      // Step 3
+      db.query(soldDealsQuery, (err, soldDealsResult) => {
+        if (err) return res.status(500).json({ error: "Database error (soldDeals)" });
+
+        // Step 4
+        db.query(rentedDealsQuery, (err, rentedDealsResult) => {
+          if (err) return res.status(500).json({ error: "Database error (rentedDeals)" });
+
+          // Step 5
+          db.query(commissionQuery, (err, commissionResult) => {
+            if (err) return res.status(500).json({ error: "Database error (commission)" });
+
+            const totalSoldDeals = soldDealsResult[0].totalSoldDeals || 0;
+            const totalRentedDeals = rentedDealsResult[0].totalRentedDeals || 0;
+
+            res.status(200).json({
+              soldPropertiesByUs: soldCountResult[0].soldCount,
+              rentedPropertiesByUs: rentedCountResult[0].rentedCount,
+              totalSoldDeals,
+              totalRentedDeals,
+              totalDeals: totalSoldDeals + totalRentedDeals,
+              totalCommission: commissionResult[0].totalCommission || 0,
+            });
+          });
+        });
+      });
+    });
+  });
+};
+
+// Get Stats of graphs 
+export const getTimeBasedStats = (req, res) => {
+  const { filter } = req.query;
+
+  if (!["year", "month", "week"].includes(filter)) {
+    return res.status(400).json({ error: "Invalid filter type" });
+  }
+
+  let saleGroupBy = "", rentGroupBy = "", labelMap = [];
+
+  if (filter === "year") {
+    saleGroupBy = "MONTH(soldAt)";
+    rentGroupBy = "MONTH(rentedAt)";
+    labelMap = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  } else if (filter === "month") {
+    saleGroupBy = "DAY(soldAt)";
+    rentGroupBy = "DAY(rentedAt)";
+    labelMap = Array.from({ length: 31 }, (_, i) => `${i + 1}`);
+  } else if (filter === "week") {
+    saleGroupBy = "WEEKDAY(soldAt)";
+    rentGroupBy = "WEEKDAY(rentedAt)";
+    labelMap = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  }
+
+  const saleQuery = `
+    SELECT ${saleGroupBy} AS label, COUNT(*) AS sold 
+    FROM properties 
+    WHERE soldByUs = true AND type = 'sale' AND soldAt IS NOT NULL
+    GROUP BY ${saleGroupBy}
+  `;
+
+  const rentQuery = `
+    SELECT ${rentGroupBy} AS label, COUNT(*) AS rented 
+    FROM properties 
+    WHERE rentedByUs = true AND type = 'rent' AND rentedAt IS NOT NULL
+    GROUP BY ${rentGroupBy}
+  `;
+
+  db.query(saleQuery, (err, saleResults) => {
+    if (err) return res.status(500).json({ error: "Error fetching sales" });
+
+    db.query(rentQuery, (err, rentResults) => {
+      if (err) return res.status(500).json({ error: "Error fetching rents" });
+
+      const dataMap = {};
+
+      saleResults.forEach(row => {
+        const name = (filter === "week")
+          ? labelMap[row.label] || `${row.label}`
+          : labelMap[row.label - 1] || `${row.label}`;
+
+        dataMap[name] = { name, sold: row.sold, rented: 0 };
+      });
+
+      rentResults.forEach(row => {
+        const name = (filter === "week")
+          ? labelMap[row.label] || `${row.label}`
+          : labelMap[row.label - 1] || `${row.label}`;
+
+        if (dataMap[name]) {
+          dataMap[name].rented = row.rented;
+        } else {
+          dataMap[name] = { name, sold: 0, rented: row.rented };
+        }
+      });
+
+      const result = Object.values(dataMap).sort((a, b) =>
+        labelMap.indexOf(a.name) - labelMap.indexOf(b.name)
+      );
+
+      res.json(result);
+    });
+  });
+};
+
+
