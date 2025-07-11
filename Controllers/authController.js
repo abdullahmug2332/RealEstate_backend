@@ -1,8 +1,10 @@
 import db from "../db.js";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
 
-const JWT_SECRET = "abdullahrealestate";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 export const login = (req, res) => {
   const { email, password } = req.body;
@@ -94,7 +96,6 @@ export const createUser = (req, res) => {
     });
   });
 };
-
 
 // ✅ Delete User Controller (protect user with ID = 1)
 export const deleteUser = (req, res) => {

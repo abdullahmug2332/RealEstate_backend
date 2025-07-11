@@ -5,9 +5,8 @@ import cors from 'cors';
 import authRoutes from "./Routes/authRoutes.js"
 import propertyRoutes from "./Routes/propertyRoutes.js"; 
 import express from "express";
-import path from "path";
 const app = express();
-app.use("/images", express.static("images")); // serve static files
+app.use("/images", express.static("images")); 
 
 const PORT = process.env.PORT ;
 

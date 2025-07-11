@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 04, 2025 at 09:47 PM
+-- Generation Time: Jul 11, 2025 at 04:02 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -61,7 +61,10 @@ CREATE TABLE `properties` (
 --
 
 INSERT INTO `properties` (`id`, `createdAt`, `price`, `location`, `measurement`, `unit`, `rooms`, `bath`, `front`, `back`, `description`, `media`, `type`, `soldout`, `soldByUs`, `buyerName`, `sellerName`, `soldAmount`, `soldAt`, `rentedOut`, `rentedByUs`, `tenantName`, `landlordName`, `rentAmount`, `rentedAt`, `commission`) VALUES
-(25, NULL, 32323, 'dsds', 23, 'marla', 2, 2, 3, 3, 'hello', NULL, 'sale', 0, 0, NULL, NULL, NULL, NULL, 0, 0, NULL, NULL, NULL, NULL, NULL);
+(26, '2025-07-10', 2600000, 'Bahria Town - Block C', 22, 'marla', 5, 3, 44, 44, 'This is very beautigul house made of like French house wooden floor with all the cabuds check it for sale.', '[{\"type\":\"image\",\"src\":\"1752240071033-blog14.png\"},{\"type\":\"image\",\"src\":\"1752240071038-blog15.png\"},{\"type\":\"image\",\"src\":\"1752240071040-blog16.png\"},{\"type\":\"image\",\"src\":\"1752240071045-blog17.png\"},{\"type\":\"video\",\"src\":\"1752240095811-video.mp4\"}]', 'sale', 0, 0, ' ', ' ', 0, '1899-11-29', 0, 0, 'null', 'null', 0, '0000-00-00', 0),
+(27, '2025-07-11', 2700000, 'Wapda Town - Block N2', 10, 'marla', 5, 2, 30, 34, 'House for Sale', '[{\"type\":\"image\",\"src\":\"1752240221910-blog29.png\"},{\"type\":\"image\",\"src\":\"1752240221914-blog30.png\"},{\"type\":\"image\",\"src\":\"1752240221924-blog31.png\"},{\"type\":\"image\",\"src\":\"1752240221927-blog36.png\"},{\"type\":\"image\",\"src\":\"1752240221930-blog37.png\"},{\"type\":\"image\",\"src\":\"1752240221937-blog38.png\"},{\"type\":\"video\",\"src\":\"1752240221939-video.mp4\"}]', 'sale', 0, 0, ' ', ' ', NULL, '0000-00-00', 0, 0, NULL, NULL, NULL, NULL, 0),
+(28, '2025-07-11', 90000000, 'Wapda Town - Block N2', 2, 'kanal', 7, 5, 53, 44, 'Also for sale', '[{\"type\":\"image\",\"src\":\"1752240286076-blog18.png\"},{\"type\":\"image\",\"src\":\"1752240286080-blog19.png\"},{\"type\":\"image\",\"src\":\"1752240286096-blog20.png\"},{\"type\":\"image\",\"src\":\"1752240286108-blog21.png\"},{\"type\":\"video\",\"src\":\"1752240286111-video.mp4\"}]', 'sale', 0, 0, ' ', ' ', NULL, '0000-00-00', 0, 0, NULL, NULL, NULL, NULL, 0),
+(29, '2025-07-11', 90000000, 'Lake City - Sector M7', 22, 'marla', 3, 3, 25, 25, 'Thi is is meium sized House ', '[{\"type\":\"image\",\"src\":\"1752240438799-blog4.png\"},{\"type\":\"image\",\"src\":\"1752240438801-blog5.jpg\"},{\"type\":\"image\",\"src\":\"1752240438801-blog6.webp\"},{\"type\":\"image\",\"src\":\"1752240438802-blog7.webp\"},{\"type\":\"image\",\"src\":\"1752240438802-blog8.png\"}]', 'sale', 0, 0, ' ', ' ', NULL, '0000-00-00', 0, 0, NULL, NULL, NULL, NULL, 0);
 
 -- --------------------------------------------------------
 
@@ -108,7 +111,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `properties`
 --
 ALTER TABLE `properties`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT for table `users`
