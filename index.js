@@ -18,6 +18,15 @@ app.use("/",authRoutes)
 app.use("/", propertyRoutes);
 
 
+app.get("/test", (req, res) => {
+  db.query("SELECT * from users", (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: "Database query failed" });
+    }
+    return res.json({ message: "API is working!", data: data });
+  });
+});
+
 
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
